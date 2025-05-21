@@ -196,8 +196,55 @@ public class Level {
 	//#############################################################################################################
 	//Your code goes here! 
 	//Please make sure you read the rubric/directions carefully and implement the solution recursively!
+	// Precondition: col and row are within map bounds.
+	// Postcondition: Fills map with appropriate Water tiles using recursion.
 	private void water(int col, int row, Map map, int fullness) {
-		
+
+		Tile[][] tiles = map.getTiles();
+
+		if (col < 0 || col >= tiles.length || row < 0 || row >= tiles[0].length) {
+			return;
+		}
+
+		if (tiles[col][row] instanceof Water || tiles[col][row].isSolid()) {
+			return;
+		}
+
+
+		String imageName = "";
+		if (fullness == 3) {
+			imageName = "Full_water";
+		} else if (fullness == 2) {
+			imageName = "Half_water";
+		} else if (fullness == 1) {
+			imageName = "Quarter_water";
+		} else {
+			imageName = "Falling_water";
+		}
+
+
+		Water w = new Water(col, row, tileSize, tileset.getImage(imageName), this, fullness);
+		map.addTile(col, row, w);
+
+		// If not at 0 fullness, try to keep spreading
+		if (fullness > 0) {
+			// Try to go down first
+			if (row + 1 < tiles[0].length && !(tiles[col][row + 1] instanceof Water) && !tiles[col][row + 1].isSolid()) {
+				water(col, row + 1, map, 0); 
+			} else {
+				// Try to spread left and right
+				if (col - 1 >= 0 && !(tiles[col - 1][row] instanceof Water)) {
+					water(col - 1, row, map, fullness - 1);
+				}
+				if (col + 1 < tiles.length && !(tiles[col + 1][row] instanceof Water)) {
+					water(col + 1, row, map, fullness - 1);
+				}
+			}
+		} else if (row + 1 < tiles[0].length && !(tiles[col][row + 1] instanceof Water) && !tiles[col][row + 1].isSolid()) {
+			water(col, row + 1, map, 0); 
+		} else if (row + 1 < tiles[0].length && !(tiles[col][row + 1] instanceof Water) && tiles[col][row + 2].isSolid()) {
+			water(col, row+1, map, 3);
+		}
 	}
 
 
